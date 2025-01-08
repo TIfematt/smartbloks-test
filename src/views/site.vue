@@ -11,7 +11,7 @@
                   <small class="text-xs text-gray-600 leading-0 mt-1 ml-1">https://testsite.smartbloks.site</small>
                </div>
             </div>
-            <iframe class="w-full flex-1" src="/preview"></iframe>
+            <iframe class="w-full flex-1" src="/preview" ref="previewFrame"></iframe>
          </div>
       </div>
    </div>
@@ -19,8 +19,22 @@
 
 <script lang='ts' setup>
 import Sidebar from '../components/Sidebar.vue'
+import { useEditorStore } from '../store/editor'
+import { storeToRefs } from 'pinia'
+import { ref, watch } from 'vue'
 
+const editorStore = useEditorStore()
+const { title } = storeToRefs(editorStore)
+const previewFrame = ref(null)
 
+// This watcher listens for changes to the title and updates the preview frame accordingly (I maintained the use of iframe as noted in the task description)
+// Another approach will be to use the preview component directly
+
+watch(title, (newTitle) => {
+    if (previewFrame.value) {
+        previewFrame.value.contentWindow.postMessage({ type: 'update-title', title: newTitle }, '*')
+    }
+})
 </script>
 
 <style lang='postcss' scoped></style>
