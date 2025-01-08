@@ -1,30 +1,29 @@
 <template>
     <div class="flex p-10 h-full">
-        <h4 class="text-4xl">{{ localTitle }}</h4>
+        <h4 class="text-4xl">{{ title }}</h4>
     </div>
 </template>
 
 <script lang='ts' setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
+import { usePreviewStore } from '../store/previewStore'
+import { storeToRefs } from 'pinia'
 
-// Initialize local title with a default value of 'Hello': (ref: Default value)
-const localTitle = ref('Hello')
+const previewStore = usePreviewStore()
+const { title } = storeToRefs(previewStore)
 
-// Function to handle incoming messages
+// Handle store updates from the parent window
 const handleMessage = (event: MessageEvent) => {
-    // Checking if the message is intended to update the title
-    if (event.data.type === 'update-title') {
-        // Updating local title with the new title from the message
-        localTitle.value = event.data.title
+    if (event.data.type === 'store-update') {
+        // Update the preview store state
+        previewStore.updateTitle(event.data.state.title)
     }
 }
 
-// i Added event listener for messages when the component is mounted
 onMounted(() => {
     window.addEventListener('message', handleMessage)
 })
 
-// Remove the event listener for messages when the component is unmounted
 onUnmounted(() => {
     window.removeEventListener('message', handleMessage)
 })

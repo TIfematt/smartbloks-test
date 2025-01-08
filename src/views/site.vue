@@ -19,7 +19,7 @@
 
 <script lang='ts' setup>
 import Sidebar from '../components/Sidebar.vue'
-import { useEditorStore } from '../store/editor'
+import { useEditorStore } from '../store/editorStore'
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
@@ -27,12 +27,13 @@ const editorStore = useEditorStore()
 const { title } = storeToRefs(editorStore)
 const previewFrame = ref(null)
 
-// This watcher listens for changes to the title and updates the preview frame accordingly (I maintained the use of iframe as noted in the task description)
-// Another approach will be to use the preview component directly
-
+// Watch for changes in the main store and send them to iframe
 watch(title, (newTitle) => {
     if (previewFrame.value) {
-        previewFrame.value.contentWindow.postMessage({ type: 'update-title', title: newTitle }, '*')
+        previewFrame.value.contentWindow.postMessage({ 
+            type: 'store-update',
+            state: { title: newTitle }
+        }, '*')
     }
 })
 </script>
